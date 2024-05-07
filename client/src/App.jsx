@@ -55,7 +55,7 @@ function App() {
     <div className="p-5 h-screen bg-black">
       <div className="container mx-auto bg-gray-900 h-full flex flex-col">
         <div className="flex-1 flex flex-row items-end p-3">
-          <div className="w-full space-y-3">
+          <div className="w-full space-y-3 overflow-y-auto max-h-[calc(100vh-150px)] px-4">
             {messages.map((message, index) => (
               <ChatMessage
                 key={index}
