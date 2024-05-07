@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { io } from "socket.io-client";
+import ReactMarkdown from "react-markdown";
 
 function ChatMessage({ message, type }) {
   return (
@@ -8,15 +9,15 @@ function ChatMessage({ message, type }) {
         type === "sent" ? "justify-start" : "justify-end"
       }`}
     >
-      <div
+      <ReactMarkdown
         className={`${
           type === "sent"
-            ? "bg-violet-400  text-white rounded-tl-lg"
-            : "bg-white text-black rounded-tr-lg"
+            ? "bg-violet-400  text-white rounded-tr-lg"
+            : "bg-white text-black rounded-tl-lg"
         } p-2 rounded-b-lg `}
       >
         {message}
-      </div>
+      </ReactMarkdown>
     </div>
   );
 }
@@ -31,6 +32,7 @@ function App() {
     setSocket(newSocket);
 
     newSocket.on("message", (message) => {
+      console.log(message);
       setMessages((prevMessages) => [
         ...prevMessages,
         { type: "received", message },
@@ -46,16 +48,21 @@ function App() {
       { type: "sent", message: inputMessage },
     ]);
     socket.emit("message", inputMessage);
+    setInputMessage("");
   };
 
   return (
     <div className="p-5 h-screen bg-black">
       <div className="container mx-auto bg-gray-900 h-full flex flex-col">
         <div className="flex-1 flex flex-row items-end p-3">
-          <div className="w-full">
-            <ChatMessage message="Hello how are you?" type="sent" />
-            <ChatMessage message="Hello how are you?" type="received" />
-            <ChatMessage message="Hello how are you?" type="sent" />
+          <div className="w-full space-y-3">
+            {messages.map((message, index) => (
+              <ChatMessage
+                key={index}
+                message={message.message}
+                type={message.type}
+              />
+            ))}
           </div>
         </div>
         <div className="h-[100px] bg-gray-700 flex justify-center items-center p-3">
@@ -64,7 +71,12 @@ function App() {
             value={inputMessage}
             onChange={(e) => setInputMessage(e.target.value)}
             className="w-full bg-transparent text-white p-2 rounded-md border-2 border-white focus:outline-none focus:border-blue-500"
-            placeholder="Enter your name"
+            placeholder="Enter your message"
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                sendMessage();
+              }
+            }}
           />
           <button
             onClick={sendMessage}
